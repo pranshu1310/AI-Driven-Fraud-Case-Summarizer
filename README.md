@@ -1,7 +1,7 @@
 # AI-Driven-Fraud-Case-Summarizer
 A pipeline that converts structured fraud detection outputs into human-readable case summaries using a small Transformer (Flan-T5) enriched with XGBoost+SHAP interpretability.
 
-# Fraud Case Summarizer — SLM + XGBoost + SHAP
+# Fraud Case Summarizer — XGBoost + SHAP + SLM
 Short: A pipeline that converts structured fraud detection outputs into human-readable case summaries using a small Transformer (Flan-T5) enriched with XGBoost+SHAP interpretability.
 
 # Table of Contents
