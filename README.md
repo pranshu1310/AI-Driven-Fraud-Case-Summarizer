@@ -1,55 +1,40 @@
 # AI-Driven-Fraud-Case-Summarizer
 A pipeline that converts structured fraud detection outputs into human-readable case summaries using a small Transformer (Flan-T5) enriched with XGBoost+SHAP interpretability.
 
-# Fraud Case Summarizer — XGBoost + SHAP + SLM
-Short: A pipeline that converts structured fraud detection outputs into human-readable case summaries using a small Transformer (Flan-T5) enriched with XGBoost+SHAP interpretability.
+# Generative AI – SLM-based Fraud Case Narrative Generator
 
-# Table of Contents
-1. Introduction & Objective
-2. Environment Setup
-   - Python version & key libraries
-   - GPU requirements
-3. Data Ingestion
-   - Source (Kaggle dataset)
-   - Quick EDA & schema
-4. Preprocessing & Cleaning
-   - Amount normalization
-   - Date/time conversion
-   - Country/state mapping
-5. Feature Engineering (Structured)
-   - Time features (hour sin/cos)
-   - Amount ratios and delta
-   - Velocity & recency features
-   - Categorical encodings
-6. Customer-level Feature Aggregation
-   - Per-customer aggregates & baselines
-   - Derived business metrics
-7. Interpretability Layer: XGBoost + SHAP
-   - Binary anomaly labeling (heuristic)
-   - XGBoost training & evaluation
-   - SHAP global & per-row explanations
-8. SLM Input Construction
-   - Base contextual prompt
-   - Structured features & SHAP enrichment
-9. SLM Training (Flan-T5)
-   - Tokenization
-   - Seq2SeqTrainer config
-   - Training & checkpoints
-10. Generation & Post-processing
-    - Batch generation
-    - Storing outputs
-11. Evaluation & Examples
-    - Manual examples & ROUGE/qualitative checks
-    - Alignment checks (does SLM reflect SHAP? consistency)
-12. Deployment / Integration Notes
-    - Inference script
-    - How to integrate into case management
-13. Future Work
-    - Better label curation
-    - Calibration with real analyst feedback
-    - Fine-grained city-country geolocation
-14. Files
-    - `transactions_with_summaries.csv`
-    - `xgb_anomaly_model.json`
-    - `shap_global_top20.csv`
-15. Author & License
+This project builds an end-to-end pipeline that:
+
+1. Ingests card transactions data and applies feature engineering.
+2. Trains an XGBoost anomaly classifier and explains predictions with SHAP.
+3. Converts SHAP outputs into natural-language "silver labels".
+4. Fine-tunes a small language model (Flan-T5) to generate fraud case narratives for each transaction.
+
+### Key folders
+
+- `data/raw/` – raw CSV (e.g., `transactions_raw.csv`).
+- `data/processed/` – feature-engineered and SHAP-enriched datasets.
+- `models/` – saved XGBoost model, SHAP global importance, and SLM model.
+- `outputs/` – generated narratives for manual review.
+
+### Main scripts (under `src/`)
+
+- `data_preprocessing.py` – load and clean raw data.
+- `feature_engineering.py` – build structured features for modeling.
+- `anomaly_labeling.py` – create binary anomaly labels (or reuse existing).
+- `xgb_interpret.py` – train XGBoost, compute SHAP global and local explanations.
+- `shap_enrichment.py` – convert SHAP into prompts and target texts for SLM.
+- `slm_train.py` – fine-tune a sequence-to-sequence model (Flan-T5).
+- `inference.py` – generate investigation-ready fraud narratives on new data.
+
+You can reproduce the full pipeline by running these modules in order:
+
+```bash
+python -m src.data_preprocessing
+python -m src.feature_engineering
+python -m src.anomaly_labeling
+python -m src.xgb_interpret
+python -m src.shap_enrichment
+python -m src.slm_train
+python -m src.inference
+
