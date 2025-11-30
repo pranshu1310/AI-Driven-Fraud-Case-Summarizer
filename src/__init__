@@ -1,0 +1,10 @@
+# src/__init__.py
+"""
+Package initializer for the fraud case summarizer project.
+
+This file tells Python that 'src' is a package.
+You can leave it mostly empty.
+"""
+
+# (Optional) you can list public modules here
+# from . import data_preprocessing, feature_engineering, anomaly_labeling, xgb_interpret, shap_enrichment, slm_train, inference, utils
