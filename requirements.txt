@@ -1,13 +1,14 @@
 pandas==2.2.3
 numpy==1.26.4
-scikit-learn==1.4.2
+scikit-learn==1.2.2
 xgboost==2.0.3
 shap==0.44.1
 
 torch>=2.6.0
 transformers==4.53.3
 datasets==4.4.1
-evaluate>=0.4.1
+evaluate>=0.4.0
 sentencepiece==0.2.0
-tqdm>=4.67.0
+tqdm==4.67.1
+
 
