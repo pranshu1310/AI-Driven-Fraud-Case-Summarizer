@@ -16,7 +16,7 @@ from transformers import (
 
 from sklearn.model_selection import train_test_split
 
-from .utils import slm_training_data_path, MODELS_DIR, ensure_dir
+from .utils import slm_training_data_path, MODELS_DIR, ensure_dir, set_seed
 
 
 def prepare_hf_dataset(
@@ -24,13 +24,15 @@ def prepare_hf_dataset(
     tokenizer,
     max_input_length: int = 256,
     max_target_length: int = 80,
-):
+) -> HFDataset:
     """
-    Convert a pandas dataframe with columns input_text, target_text
+    Convert a pandas dataframe with columns:
+      - input_text
+      - target_text
     into a HuggingFace Dataset with tokenized fields.
     """
-    inputs = df["input_text"].astype(str).tolist()
-    targets = df["target_text"].astype(str).tolist()
+    inputs = df["input_text"].tolist()
+    targets = df["target_text"].tolist()
 
     tokenized_inputs = tokenizer(
         inputs,
@@ -65,12 +67,16 @@ def train_slm_model(
     max_target_length: int = 80,
     num_train_epochs: int = 3,
 ):
+    # Reproducibility
+    set_seed()
+
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print("Using device:", device)
 
     df_slm = pd.read_csv(slm_training_data_path())
-    print("Loaded SLM training data, shape:", df_slm.shape)
+    print(f"Loaded SLM training data, shape: {df_slm.shape}")
 
+    # Basic split
     train_df, temp_df = train_test_split(df_slm, test_size=0.2, random_state=42)
     val_df, test_df = train_test_split(temp_df, test_size=0.5, random_state=42)
 
@@ -79,18 +85,8 @@ def train_slm_model(
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(device)
 
-    train_hf = prepare_hf_dataset(
-        train_df.reset_index(drop=True),
-        tokenizer,
-        max_input_length,
-        max_target_length,
-    )
-    val_hf = prepare_hf_dataset(
-        val_df.reset_index(drop=True),
-        tokenizer,
-        max_input_length,
-        max_target_length,
-    )
+    train_hf = prepare_hf_dataset(train_df.reset_index(drop=True), tokenizer, max_input_length, max_target_length)
+    val_hf = prepare_hf_dataset(val_df.reset_index(drop=True), tokenizer, max_input_length, max_target_length)
 
     batch_size = 8
     args = Seq2SeqTrainingArguments(
