@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from typing import Optional
 
-from .utils import FEATURED_DATA_PATH, LABELED_DATA_PATH, ensure_dir, DATA_PROCESSED_DIR
+from .utils import processed_shap_path, ensure_dir, DATA_PROCESSED_DIR
 
 
 # ------------------------------
