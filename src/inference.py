@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from typing import List
-
 import pandas as pd
 import torch
+from typing import List
+
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 from .shap_enrichment import (
@@ -37,7 +37,7 @@ def generate_batch(
     outputs = []
 
     for i in range(0, len(prompts), batch_size):
-        batch = prompts[i : i + batch_size]
+        batch = prompts[i:i + batch_size]
         inputs = tokenizer(
             batch,
             return_tensors="pt",
@@ -54,7 +54,6 @@ def generate_batch(
                 top_p=top_p,
                 do_sample=True,
                 num_beams=1,
-                early_stopping=True,
                 repetition_penalty=1.05,
             )
 
@@ -66,41 +65,43 @@ def generate_batch(
 
 def run_inference_on_df(df: pd.DataFrame, model_dir: str) -> pd.DataFrame:
     """
-    Given a SHAP-enriched dataframe that has at least:
+    Given a shap-enriched dataframe (e.g., from data/processed/transactions_with_shap.csv)
+    that has at least:
       - txn_amount, txn_city, txn_country
       - mins_since_prev_txn, txn_cnt_inlast1440mins
-      - top_shap_features, shap_summary
+      - shap_summary and/or top_shap_features
 
-    this will:
-      - reconstruct _top_shap_pairs
-      - build _shap_reasons
-      - build input_text (prompt)
-      - build target_text (silver explanation)
-      - generate 'generated_narrative' via SLM
-      - save everything to outputs/summarized_cases.csv
+    This function:
+      - recomputes _top_shap_pairs
+      - builds _shap_reasons
+      - builds target_text (rule-based silver explanation)
+      - builds input_text (prompt)
+      - runs the SLM
+      - writes generated_narrative
+      - saves everything to outputs/summarized_cases.csv
     """
     tokenizer, model, device = load_slm_model(model_dir)
 
     df = df.copy()
 
-    # 1) Parse SHAP
+    # 1) Parse SHAP → pairs
     df["_top_shap_pairs"] = df.apply(parse_top_shap, axis=1)
 
-    # 2) SHAP -> reasons
+    # 2) Pairs → reasons
     df["_shap_reasons"] = df["_top_shap_pairs"].apply(shap_to_reasons)
 
-    # 3) Silver explanation (same as training target_text logic)
+    # 3) Reasons → rule-based reference explanation (target_text)
     df["target_text"] = df["_shap_reasons"].apply(build_explanation_from_reasons)
 
     # 4) Build prompts
     df["input_text"] = df.apply(build_generative_prompt_from_row, axis=1)
 
+    # 5) Generate narratives from SLM
     prompts = df["input_text"].tolist()
     generations = generate_batch(tokenizer, model, device, prompts)
-
     df["generated_narrative"] = generations
 
-    # Save final output
+    # 6) Save
     ensure_dir(OUTPUTS_DIR)
     out_path = f"{OUTPUTS_DIR}/summarized_cases.csv"
     df.to_csv(out_path, index=False)
@@ -110,8 +111,7 @@ def run_inference_on_df(df: pd.DataFrame, model_dir: str) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    # Convenience: run inference on the SHAP-enriched dataset
-    shap_path = processed_shap_path()
-    df_shap = pd.read_csv(shap_path)
-    model_dir = f"{MODELS_DIR}/slm_model"
+    # Default: run on full SHAP-enriched dataset
+    df_shap = pd.read_csv(processed_shap_path())
+    model_dir = f"{MODELS_DIR}/slm_model"  # same as in training
     run_inference_on_df(df_shap, model_dir)
