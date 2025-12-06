@@ -1,29 +1,31 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
-
+import os
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
 import shap
-from typing import Tuple
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score, classification_report
 from xgboost import XGBClassifier
 
 from .feature_engineering import CANDIDATE_FEATURES
-from .utils import processed_shap_path, MODELS_DIR, ensure_dir
-import os
+from .utils import processed_fe_path, processed_shap_path, MODELS_DIR, ensure_dir
 
 
-def train_xgb_classifier(df: pd.DataFrame) -> Tuple[XGBClassifier, pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
+def train_xgb_classifier(
+    df: pd.DataFrame,
+) -> Tuple[XGBClassifier, pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
     """
     Train an XGBoost binary classifier on CANDIDATE_FEATURES vs is_anomaly_label.
     Returns model + train/val split.
     """
     df = df.copy()
+
+    # For dev speed, sample up to 20k rows
     max_rows_for_xgb = min(20000, len(df))
     xgb_df = df.sample(n=max_rows_for_xgb, random_state=42).copy()
 
@@ -42,13 +44,14 @@ def train_xgb_classifier(df: pd.DataFrame) -> Tuple[XGBClassifier, pd.DataFrame,
         learning_rate=0.1,
         n_estimators=200,
         verbosity=0,
-        random_state=42
+        random_state=42,
     )
 
     xgbmodel.fit(
-        X_train, y_train,
+        X_train,
+        y_train,
         eval_set=[(X_val, y_val)],
-        verbose=False
+        verbose=False,
     )
 
     preds_val = xgbmodel.predict_proba(X_val)[:, 1]
@@ -65,41 +68,46 @@ def compute_shap_for_model(
     model: XGBClassifier,
     X_train: pd.DataFrame,
     X_val: pd.DataFrame,
-    full_df: pd.DataFrame
+    full_df: pd.DataFrame,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Compute SHAP values with a model.predict_proba wrapper and attach local
-    SHAP drivers to full_df (per-row).
+    Compute SHAP values using a model.predict_proba wrapper and attach
+    per-row SHAP drivers + SHAP summary strings to full_df.
     """
-    # Background
-    background = X_train.sample(
-        n=min(2000, len(X_train)),
-        random_state=42
-    ).astype("float64")
+    # Background sample for SHAP
+    background = (
+        X_train.sample(n=min(2000, len(X_train)), random_state=42)
+        .astype("float64")
+    )
 
     def model_predict_proba(X_input):
         return model.predict_proba(X_input)[:, 1]
 
     explainer = shap.Explainer(model_predict_proba, background)
 
-    # Global SHAP on a validation sample
-    sample_X = X_val.sample(n=min(4000, len(X_val)), random_state=42).astype("float64")
+    # ---- Global SHAP: on a validation sample ----
+    sample_X = (
+        X_val.sample(n=min(4000, len(X_val)), random_state=42)
+        .astype("float64")
+    )
     shap_result = explainer(sample_X)
     shap_values = shap_result.values  # (n_samples, n_features)
-    print("SHAP matrix shape:", shap_values.shape)
+    print("SHAP matrix shape (val sample):", shap_values.shape)
 
     shap_global = (
-        pd.DataFrame({
-            "feature": sample_X.columns,
-            "mean_abs_shap": np.abs(shap_values).mean(axis=0)
-        })
+        pd.DataFrame(
+            {
+                "feature": sample_X.columns,
+                "mean_abs_shap": np.abs(shap_values).mean(axis=0),
+            }
+        )
         .sort_values("mean_abs_shap", ascending=False)
         .reset_index(drop=True)
     )
 
     print("Top 10 SHAP features:\n", shap_global.head(10))
 
-    # Local SHAP for all rows we want to enrich
+    # ---- Local SHAP: for all rows we want to enrich ----
     df_for_shap = full_df[CANDIDATE_FEATURES].astype("float64")
     shap_full = explainer(df_for_shap).values  # (N, n_features)
 
@@ -110,11 +118,10 @@ def compute_shap_for_model(
 
     full_df = full_df.copy()
     full_df["top_shap_features"] = [
-        top_local_features(shap_full[i], n=4)
-        for i in range(len(shap_full))
+        top_local_features(shap_full[i], n=4) for i in range(len(shap_full))
     ]
 
-    # Optional: a human-readable SHAP summary sentence
+    # Human-readable SHAP summary sentence with sign + magnitude
     def row_shap_summary(shap_row):
         abs_vals = np.abs(shap_row)
         idx = np.argsort(-abs_vals)[:4]
@@ -127,8 +134,7 @@ def compute_shap_for_model(
         return "Top factors: " + ", ".join(parts) + "."
 
     full_df["shap_summary"] = [
-        row_shap_summary(shap_full[i])
-        for i in range(len(shap_full))
+        row_shap_summary(shap_full[i]) for i in range(len(shap_full))
     ]
 
     return shap_global, full_df
@@ -136,32 +142,39 @@ def compute_shap_for_model(
 
 def run_xgb_and_shap():
     """
-    Orchestrator: load processed data, train XGB, compute SHAP,
-    and save artifacts.
+    Orchestrator:
+    - Load feature-engineered data
+    - Train XGB
+    - Compute SHAP
+    - Save: XGB model, SHAP global importance, SHAP-enriched dataset.
     """
     ensure_dir(MODELS_DIR)
-    df = pd.read_csv(processed_shap_path())
+
+    # read FE dataset
+    fe_path = processed_fe_path()
+    df = pd.read_csv(fe_path)
+    print(f"Loaded feature-engineered data from {fe_path}, shape {df.shape}")
 
     model, X_train, y_train, X_val, y_val = train_xgb_classifier(df)
     shap_global, df_with_shap = compute_shap_for_model(model, X_train, X_val, df)
 
-    # Save model & SHAP outputs
+    # Save model
     model_path = os.path.join(MODELS_DIR, "xgb_anomaly_model.json")
     model.save_model(model_path)
     print(f"Saved XGBoost model to {model_path}")
 
+    # Save global SHAP
     shap_global_path = os.path.join(MODELS_DIR, "shap_global_top20.csv")
     shap_global.head(20).to_csv(shap_global_path, index=False)
     print(f"Saved SHAP global importance to {shap_global_path}")
 
-    # Save enriched dataframe for SLM
-    from .utils import processed_shap_path as enriched_path
-    df_with_shap.to_csv(enriched_path(), index=False)
-    print(f"Saved SHAP-enriched dataset to {enriched_path()}, shape {df_with_shap.shape}")
+    # Save SHAP-enriched dataframe for downstream SLM
+    shap_path = processed_shap_path()
+    df_with_shap.to_csv(shap_path, index=False)
+    print(f"Saved SHAP-enriched dataset to {shap_path}, shape {df_with_shap.shape}")
 
     return df_with_shap, shap_global
 
 
 if __name__ == "__main__":
     run_xgb_and_shap()
-
