@@ -26,23 +26,32 @@ CANDIDATE_FEATURES: List[str] = [
 
 def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Add txn_day, txn_hour, sin/cos time encodings if not already present.
+    Ensure txn_date is datetime. Then safely compute hour, day, and sinusoidal encodings.
+    Never breaks even if txn_date is missing or unparseable.
     """
     df = df.copy()
 
-    if "txn_date" in df.columns and "txn_hour" not in df.columns:
-        df["txn_hour"] = df["txn_date"].dt.hour
+    # 1) Make txn_date a datetime if it exists
+    if "txn_date" in df.columns:
+        df["txn_date"] = pd.to_datetime(df["txn_date"], errors="coerce")
 
-    if "txn_date" in df.columns and "txn_day" not in df.columns:
-        df["txn_day"] = df["txn_date"].dt.day
+        if df["txn_date"].isna().all():
+            print("⚠️ WARNING: txn_date exists but could not be parsed to datetime — skipping time features.")
+            return df
+    else:
+        print("⚠️ WARNING: txn_date column not found — skipping time features.")
+        return df
 
-    # sin/cos encodings for hour (0-23)
-    if "txn_hour" in df.columns and "txn_hour_sin" not in df.columns:
-        df["txn_hour_sin"] = np.sin(2 * np.pi * df["txn_hour"] / 24.0)
-    if "txn_hour" in df.columns and "txn_hour_cos" not in df.columns:
-        df["txn_hour_cos"] = np.cos(2 * np.pi * df["txn_hour"] / 24.0)
+    # 2) Now safely add hour/day
+    df["txn_hour"] = df["txn_date"].dt.hour
+    df["txn_day"]  = df["txn_date"].dt.day
+
+    # 3) Add sin/cos encoding
+    df["txn_hour_sin"] = np.sin(2 * np.pi * df["txn_hour"] / 24.0)
+    df["txn_hour_cos"] = np.cos(2 * np.pi * df["txn_hour"] / 24.0)
 
     return df
+
 
 
 def ensure_candidate_features(df: pd.DataFrame) -> pd.DataFrame:
