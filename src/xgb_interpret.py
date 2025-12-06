@@ -151,7 +151,7 @@ def run_xgb_and_shap():
     ensure_dir(MODELS_DIR)
 
     # read FE dataset
-    fe_path = processed_fe_path()
+    fe_path = processed_shap_path()
     df = pd.read_csv(fe_path)
     print(f"Loaded feature-engineered data from {fe_path}, shape {df.shape}")
 
