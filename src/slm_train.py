@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
-
-
 import numpy as np
 import pandas as pd
 import torch
@@ -22,13 +19,18 @@ from sklearn.model_selection import train_test_split
 from .utils import slm_training_data_path, MODELS_DIR, ensure_dir
 
 
-def prepare_hf_dataset(df: pd.DataFrame, tokenizer, max_input_length=256, max_target_length=80):
+def prepare_hf_dataset(
+    df: pd.DataFrame,
+    tokenizer,
+    max_input_length: int = 256,
+    max_target_length: int = 80,
+):
     """
     Convert a pandas dataframe with columns input_text, target_text
     into a HuggingFace Dataset with tokenized fields.
     """
-    inputs = df["input_text"].tolist()
-    targets = df["target_text"].tolist()
+    inputs = df["input_text"].astype(str).tolist()
+    targets = df["target_text"].astype(str).tolist()
 
     tokenized_inputs = tokenizer(
         inputs,
@@ -67,6 +69,7 @@ def train_slm_model(
     print("Using device:", device)
 
     df_slm = pd.read_csv(slm_training_data_path())
+    print("Loaded SLM training data, shape:", df_slm.shape)
 
     train_df, temp_df = train_test_split(df_slm, test_size=0.2, random_state=42)
     val_df, test_df = train_test_split(temp_df, test_size=0.5, random_state=42)
@@ -76,8 +79,18 @@ def train_slm_model(
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(device)
 
-    train_hf = prepare_hf_dataset(train_df.reset_index(drop=True), tokenizer, max_input_length, max_target_length)
-    val_hf = prepare_hf_dataset(val_df.reset_index(drop=True), tokenizer, max_input_length, max_target_length)
+    train_hf = prepare_hf_dataset(
+        train_df.reset_index(drop=True),
+        tokenizer,
+        max_input_length,
+        max_target_length,
+    )
+    val_hf = prepare_hf_dataset(
+        val_df.reset_index(drop=True),
+        tokenizer,
+        max_input_length,
+        max_target_length,
+    )
 
     batch_size = 8
     args = Seq2SeqTrainingArguments(
@@ -118,4 +131,3 @@ def train_slm_model(
 
 if __name__ == "__main__":
     train_slm_model()
-
