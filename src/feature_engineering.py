@@ -299,7 +299,7 @@ def enrich_with_synthetic_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 
 
-# Candidate features, aligned with what you used for XGBoost
+# Candidate features, aligned with what were used for XGBoost
 CANDIDATE_FEATURES: List[str] = [
     "txn_amount", "txn_amount_ratio_to_avg", "txn_amount_minus_avg",
     "cust_avg_txn_amt", "cust_txn_stddev", "cust_spend_min", "cust_spend_max",
@@ -344,13 +344,13 @@ def add_time_features(df: pd.DataFrame) -> pd.DataFrame:
 
 def ensure_candidate_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Make sure all CANDIDATE_FEATURES exist. If your dataset already
-    has them (from your earlier pipeline), this will mostly be a no-op.
+    Make sure all CANDIDATE_FEATURES exists. If the dataset already
+    has them (from the earlier pipeline), this will mostly be a no-op.
     """
     df = df.copy()
     df = add_time_features(df)
 
-    # You can add guards here if some columns are missing
+    # Add guards here if some columns are missing
     missing_cols = [c for c in CANDIDATE_FEATURES if c not in df.columns]
     if missing_cols:
         print("WARNING: These candidate features are missing and will be filled with 0:", missing_cols)
