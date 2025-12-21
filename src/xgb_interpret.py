@@ -194,7 +194,8 @@ def run_xgb_and_shap():
 
     # read FE dataset
     fe_path = processed_shap_path()
-    df = pd.read_csv(fe_path)
+    df = pd.read_csv(fe_path,low_memory=False)
+    df = df.loc[:, ~df.columns.str.startswith("Unnamed")]
     print(f"Loaded feature-engineered data from {fe_path}, shape {df.shape}")
 
     model, X_train, y_train, X_val, y_val = train_xgb_classifier(df)
