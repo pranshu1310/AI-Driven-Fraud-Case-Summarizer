@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from datasets import Dataset as HFDataset
+from datasets import Dataset as HFDatasetf
 from transformers import (
     AutoTokenizer,
     AutoModelForSeq2SeqLM,
@@ -73,7 +73,8 @@ def train_slm_model(
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print("Using device:", device)
 
-    df_slm = pd.read_csv(slm_training_data_path())
+    df_slm = pd.read_csv(slm_training_data_path(),low_memory=False)
+    df = df.loc[:, ~df.columns.str.startswith("Unnamed")]
     print(f"Loaded SLM training data, shape: {df_slm.shape}")
 
     # Basic split
