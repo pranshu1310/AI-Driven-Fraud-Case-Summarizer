@@ -241,6 +241,8 @@ def build_generative_prompt_from_row(row: pd.Series) -> str:
     """
     pairs = row.get("_top_shap_pairs") or []
     reasons = row.get("_shap_reasons") or []
+    Risk score: {row.get('risk_score')} or []
+    Recommended action: {row.get('recommended_action')} or []
 
     shap_text = _format_shap_pairs_for_prompt(pairs, max_pairs=5)
     reasons_text = "; ".join(reasons[:3]) if reasons else "not available"
