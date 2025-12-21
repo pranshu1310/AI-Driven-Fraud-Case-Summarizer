@@ -16,7 +16,8 @@ def load_raw_transactions(path: Optional[str] = None, nrows: Optional[int] = Non
     """
     if path is None:
         path = default_raw_path()
-    df = pd.read_csv(path, nrows=nrows)
+    df = pd.read_csv(path, nrows=nrows,low_memory=False)
+    df = df.loc[:, ~df.columns.str.startswith("Unnamed")]
     return df
 
 
