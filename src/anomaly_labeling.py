@@ -74,7 +74,8 @@ def run_anomaly_labeling(input_path: Optional[str] = None) -> pd.DataFrame:
     if input_path is None:
         input_path = processed_shap_path()
 
-    df = pd.read_csv(input_path)
+    df = pd.read_csv(input_path, low_memory=False)
+    df = df.loc[:, ~df.columns.str.startswith("Unnamed")]
     df = create_full_anomaly_labels(df)
 
     ensure_dir(DATA_PROCESSED_DIR)
