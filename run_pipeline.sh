@@ -10,19 +10,22 @@ python -m src.feature_engineering
 echo "🟡 Step 3: Customer Profile Features (offline)"
 python -m src.customer_profile_features
 
-echo "🟠 Step 4: Anomaly Labeling"
+echo "🟠 Step 4: Velocity Features (batch-only)"
+python -m src.velocity_features
+
+echo "🟣 Step 5: Anomaly Labeling"
 python -m src.anomaly_labeling
 
-echo "🟣 Step 5: XGBoost + SHAP"
+echo "🔵 Step 6: XGBoost + SHAP"
 python -m src.xgb_interpret
 
-echo "🟤 Step 6: SHAP Enrichment"
+echo "🟤 Step 7: SHAP Enrichment"
 python -m src.shap_enrichment
 
-echo "🔴 Step 7: SLM Training"
+echo "🔴 Step 8: SLM Training"
 python -m src.slm_train
 
-echo "🟢 Step 8: Inference"
+echo "🟢 Step 9: Inference"
 python -m src.inference
 
 echo "✅ Pipeline completed successfully!"
