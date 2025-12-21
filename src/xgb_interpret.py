@@ -137,6 +137,48 @@ def compute_shap_for_model(
         row_shap_summary(shap_full[i]) for i in range(len(shap_full))
     ]
 
+    # ------------------------------------------------------------------
+    # 3. RISK SCORE (MODEL-BASED, PRODUCTION READY)
+    # ------------------------------------------------------------------
+    probs = model.predict_proba(df_for_shap)[:, 1]
+
+    # Base risk score: 0–100
+    full_df["risk_score_prob"] = probs
+    full_df["risk_score"] = (probs * 100).round(2)
+
+    # Optional conservative uplift if rule-based anomaly triggered
+    if "is_anomaly_label" in full_df.columns:
+        full_df.loc[
+            full_df["is_anomaly_label"] == 1, "risk_score"
+        ] = (
+            full_df.loc[full_df["is_anomaly_label"] == 1, "risk_score"] + 8
+        ).clip(upper=100)
+
+    # ------------------------------------------------------------------
+    # 4. RECOMMENDED ACTION (BUSINESS LAYER)
+    # ------------------------------------------------------------------
+    def recommend_action(score, shap_text):
+        shap_text = str(shap_text).lower()
+
+        if score >= 80:
+            return "BLOCK & INVESTIGATE"
+
+        if score >= 60:
+            return "HOLD & MANUAL REVIEW"
+
+        if score >= 40:
+            # escalate if amount / velocity / geo signals present
+            if any(k in shap_text for k in ["amount", "txn_cnt", "country", "city"]):
+                return "REVIEW - PRIORITY (behavioral spike)"
+            return "REVIEW / MONITOR"
+
+        return "MONITOR / NO ACTION"
+
+    full_df["recommended_action"] = full_df.apply(
+        lambda r: recommend_action(r["risk_score"], r["shap_summary"]),
+        axis=1,
+    )
+
     return shap_global, full_df
 
 
