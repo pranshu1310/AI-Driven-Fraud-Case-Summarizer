@@ -13,7 +13,8 @@ def stable_hash(val):
 
 
 def run_customer_profile_features() -> pd.DataFrame:
-    df = pd.read_csv(processed_shap_path())
+    df = pd.read_csv(processed_shap_path(),low_memory=False)
+    df = df.loc[:, ~df.columns.str.startswith("Unnamed")]
     df["txn_date"] = pd.to_datetime(df["txn_date"], errors="coerce")
 
     # -----------------------------
