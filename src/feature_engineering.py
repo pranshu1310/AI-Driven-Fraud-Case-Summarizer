@@ -31,6 +31,20 @@ def run_feature_engineering() -> pd.DataFrame:
     df = df.loc[:, ~df.columns.str.startswith("Unnamed")]
 
     # --------------------------------------------------
+    # 🔑 Canonical schema enforcement (RAW → STANDARD)
+    # --------------------------------------------------
+    df = df.rename(
+        columns={
+            "id": "txn_id",
+            "date": "txn_date",
+            "amount": "txn_amount",
+            "merchant_city": "txn_city",
+            "merchant_state": "txn_state",
+        }
+    )
+
+
+    # --------------------------------------------------
     # 1. Amount normalization (defensive)
     # --------------------------------------------------
     df["txn_amount"] = (
