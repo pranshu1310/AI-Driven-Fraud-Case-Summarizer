@@ -74,7 +74,7 @@ def train_slm_model(
     print("Using device:", device)
 
     df_slm = pd.read_csv(slm_training_data_path(),low_memory=False)
-    df = df.loc[:, ~df.columns.str.startswith("Unnamed")]
+    df_slm = df_slm.loc[:, ~df_slm.columns.str.startswith("Unnamed")]
     print(f"Loaded SLM training data, shape: {df_slm.shape}")
 
     # Basic split
