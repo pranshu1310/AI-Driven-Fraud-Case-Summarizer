@@ -20,7 +20,7 @@ def load_raw_transactions(path: Optional[str] = None, nrows: Optional[int] = Non
     return df
 
 
-def filter_sample_clients(df: pd.DataFrame, n_clients: int = 50) -> pd.DataFrame:
+def filter_sample_clients(df: pd.DataFrame, n_clients: int = 25) -> pd.DataFrame:
     """
     For development: keep data only for a subset of client_ids
     so we can iterate quickly without training on millions of rows.
