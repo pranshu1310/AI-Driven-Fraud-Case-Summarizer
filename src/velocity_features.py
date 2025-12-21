@@ -13,6 +13,7 @@ def run_velocity_features() -> pd.DataFrame:
     Memory-safe: computes in-place, no large intermediate DataFrames.
     """
     df = pd.read_csv(processed_shap_path(), low_memory=False)
+    df = df.loc[:, ~df.columns.str.startswith("Unnamed")]
 
     # Ensure datetime
     df["txn_date"] = pd.to_datetime(df["txn_date"], errors="coerce")
