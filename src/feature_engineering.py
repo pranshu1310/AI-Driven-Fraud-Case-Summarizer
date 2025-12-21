@@ -28,6 +28,7 @@ CANDIDATE_FEATURES: List[str] = [
 def run_feature_engineering() -> pd.DataFrame:
     # ---- Load safely (avoid dtype warning explosion) ----
     df = pd.read_csv(processed_fe_path(), low_memory=False)
+    df = df.loc[:, ~df.columns.str.startswith("Unnamed")]
 
     # --------------------------------------------------
     # 1. Amount normalization (defensive)
