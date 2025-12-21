@@ -120,6 +120,7 @@ def run_inference_on_df(df: pd.DataFrame, model_dir: str) -> pd.DataFrame:
 
 if __name__ == "__main__":
     # Default: run on full SHAP-enriched dataset
-    df_shap = pd.read_csv(processed_shap_path())
+    df_shap = pd.read_csv(processed_shap_path(),low_memory=False)
+    df_shap = df_shap.loc[:, ~df_shap.columns.str.startswith("Unnamed")]
     model_dir = f"{MODELS_DIR}/slm_model"  # same as in training
     run_inference_on_df(df_shap, model_dir)
