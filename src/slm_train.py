@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from datasets import Dataset as HFDatasetf
+from datasets import Dataset as HFDataset
 from transformers import (
     AutoTokenizer,
     AutoModelForSeq2SeqLM,
@@ -97,7 +97,7 @@ def train_slm_model(
         learning_rate=1e-4,
         num_train_epochs=num_train_epochs,
         fp16=torch.cuda.is_available(),
-        eval_strategy="epoch",
+        evaluation_strategy="epoch",
         save_strategy="epoch",
         gradient_accumulation_steps=2,
         report_to="none",
