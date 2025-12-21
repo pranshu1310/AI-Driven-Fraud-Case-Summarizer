@@ -84,6 +84,14 @@ def run_inference_on_df(df: pd.DataFrame, model_dir: str) -> pd.DataFrame:
 
     df = df.copy()
 
+    # if risk_score exists, keep; otherwise compute a fallback from probability-like columns if present
+    if 'risk_score' not in df.columns and 'risk_score_prob' in df.columns:
+        df['risk_score'] = (df['risk_score_prob'] * 100).round(2)
+    # fill missing recommended_action with mapping
+    if 'recommended_action' not in df.columns:
+        df['recommended_action'] = df['risk_score'].apply(lambda s: "MONITOR / NO ACTION" if s < 40 else ("REVIEW / MONITOR" if s < 60 else ("HOLD & MANUAL REVIEW" if s < 80 else "BLOCK & INVESTIGATE")))
+
+
     # 1) Parse SHAP → pairs
     df["_top_shap_pairs"] = df.apply(parse_top_shap, axis=1)
 
