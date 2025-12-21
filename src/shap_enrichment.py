@@ -234,7 +234,8 @@ def build_generative_prompt_from_row(row: pd.Series) -> str:
 def build_slm_dataset() -> pd.DataFrame:
     set_seed()
 
-    df = pd.read_csv(processed_shap_path())
+    df = pd.read_csv(processed_shap_path(),low_memory=False)
+    df = df.loc[:, ~df.columns.str.startswith("Unnamed")]
     print(f"Loaded SHAP-enriched data from {processed_shap_path()}, shape={df.shape}")
 
     df["_top_shap_pairs"] = df.apply(parse_top_shap, axis=1)
