@@ -1,0 +1,118 @@
+[
+  {
+    "id": "case-001",
+    "title": "High-Risk Late Night Transaction Pattern",
+    "summary": "Multiple transactions outside normal spending hours with unusual merchant categories flagged for investigation.",
+    "narrative": "Investigation Alert: This transaction exhibits high-risk characteristics warranting immediate review. The cardholder has initiated a $847.32 payment at 2:47 AM to an electronics retailer, significantly deviating from their typical spending pattern. Historical analysis reveals this account normally transacts during business hours (9 AM - 6 PM) with an average transaction value of $127. The current transaction amount exceeds the customer's 30-day rolling average by 312%. Additionally, the merchant category (Electronics & Computers) represents only 3% of this cardholder's historical purchases. SHAP analysis identifies transaction time (late night hours) and amount deviation as the primary anomaly indicators. Recommend immediate cardholder verification and merchant authentication before authorization.",
+    "why_flagged": [
+      "Transaction time falls outside customer's normal pattern (2:47 AM vs. typical 9 AM-6 PM)",
+      "Amount $847.32 exceeds 30-day rolling average by 312%",
+      "Merchant category (Electronics) represents only 3% of historical purchases",
+      "Velocity check: 3rd transaction in 24-hour window (typical pattern: 1 per day)",
+      "Geographic anomaly: Transaction location 187 miles from home address"
+    ],
+    "metadata": {
+      "risk_score": "0.87",
+      "amount": "$847.32",
+      "merchant_category": "Electronics & Computers",
+      "time": "2:47 AM EST"
+    },
+    "links": {
+      "output": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs",
+      "shap": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs"
+    }
+  },
+  {
+    "id": "case-002",
+    "title": "Suspicious Velocity Pattern - Multiple Small Charges",
+    "summary": "Rapid sequence of low-value transactions suggesting card testing behavior commonly associated with stolen credentials.",
+    "narrative": "Fraud Alert - High Confidence: Analysis indicates probable card testing activity. The account has processed 12 transactions within a 4-hour window, each ranging from $1.00 to $4.99. This pattern strongly correlates with automated bot behavior attempting to validate stolen card credentials before executing larger fraudulent purchases. The cardholder's established pattern shows an average of 2-3 transactions per day with values typically exceeding $40. Current velocity metrics: 12 transactions in 240 minutes represents a 600% increase over baseline. All transactions target online merchants in different geographic regions, further suggesting automated script activity. SHAP interpretability scores highlight transaction velocity (weight: 0.92) and amount clustering (weight: 0.78) as dominant fraud indicators. Immediate action required: suspend card and initiate cardholder contact protocol.",
+    "why_flagged": [
+      "Velocity spike: 12 transactions in 4 hours (baseline: 2-3 per day)",
+      "All transaction amounts between $1-$4.99, typical of card validation attempts",
+      "Geographic spread: 7 different states within 4-hour window",
+      "Merchant diversity: 12 different online retailers, no repeat merchants",
+      "Time clustering: transactions occurring at 18-22 minute intervals (automated pattern)"
+    ],
+    "metadata": {
+      "risk_score": "0.94",
+      "amount": "$1.00 - $4.99 (series)",
+      "merchant_category": "Various Online Retailers",
+      "time": "10:23 AM - 2:47 PM EST"
+    },
+    "links": {
+      "output": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs",
+      "shap": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs"
+    }
+  },
+  {
+    "id": "case-003",
+    "title": "First International Transaction Anomaly",
+    "summary": "Unexpected international purchase in high-risk region with no prior travel notification or international transaction history.",
+    "narrative": "Alert - Potential Account Compromise: First-time international transaction detected from a region classified as high-risk for card fraud. The cardholder has initiated a $2,341.67 purchase from a merchant located in Eastern Europe, representing their first international transaction in the 24-month monitoring period. Account history shows 100% domestic (US) transactions across 347 prior purchases. The transaction amount ranks in the 94th percentile for this customer profile. Additional risk factors include: merchant is newly registered (< 60 days operational), transaction initiated during customer's typical sleep hours (based on timezone), and no travel notification on file. SHAP feature analysis prioritizes geographic novelty (weight: 0.88), merchant risk score (weight: 0.82), and amount percentile (weight: 0.71). Recommendation: Place temporary hold, escalate to fraud investigation team for real-time cardholder verification.",
+    "why_flagged": [
+      "First international transaction in 24-month history (347 prior domestic transactions)",
+      "Merchant location in high-risk region (Eastern Europe)",
+      "Amount $2,341.67 in 94th percentile for customer spending profile",
+      "Merchant newly registered (operational < 60 days)",
+      "Transaction initiated at 3:12 AM customer local time",
+      "No travel notification filed with issuer"
+    ],
+    "metadata": {
+      "risk_score": "0.91",
+      "amount": "$2,341.67",
+      "merchant_category": "Consumer Electronics",
+      "time": "3:12 AM PST"
+    },
+    "links": {
+      "output": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs",
+      "shap": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs"
+    }
+  },
+  {
+    "id": "case-004",
+    "title": "Unusual Merchant Category Shift",
+    "summary": "Transaction in merchant category with zero historical precedent, combined with above-average amount triggering investigation protocol.",
+    "narrative": "Investigation Required: Account behavior deviation detected across multiple risk dimensions. The cardholder has processed a $612.45 transaction at a luxury jewelry merchant, representing the first jewelry purchase in their complete transaction history. Historical spending analysis (18 months, 423 transactions) shows primary categories: groceries (34%), gas stations (28%), and restaurants (22%). Current transaction category (jewelry) has zero precedent in profile. Amount analysis indicates this purchase exceeds the customer's median transaction by 487%. Temporal analysis reveals transaction occurred on a Tuesday at 10:45 PM, while 76% of customer's historical transactions occur on weekends between 11 AM - 4 PM. SHAP attributions identify merchant category novelty (0.85), amount deviation (0.79), and day-of-week anomaly (0.68) as primary drivers. Recommend enhanced verification including secondary authentication and transaction purpose inquiry.",
+    "why_flagged": [
+      "Zero historical precedent for luxury jewelry purchases (0 of 423 transactions)",
+      "Amount $612.45 exceeds median transaction value by 487%",
+      "Transaction day/time: Tuesday 10:45 PM (customer pattern: weekend 11 AM-4 PM)",
+      "Merchant risk profile: luxury goods category with elevated fraud rates",
+      "Customer profile mismatch: income bracket suggests typical jewelry spend < $200"
+    ],
+    "metadata": {
+      "risk_score": "0.82",
+      "amount": "$612.45",
+      "merchant_category": "Luxury Jewelry",
+      "time": "10:45 PM EST"
+    },
+    "links": {
+      "output": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs",
+      "shap": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs"
+    }
+  },
+  {
+    "id": "case-005",
+    "title": "Post-Breach Merchant Transaction",
+    "summary": "Transaction at merchant recently involved in data breach, combined with atypical spending pattern requiring enhanced monitoring.",
+    "narrative": "Enhanced Monitoring Alert: Transaction processed at merchant flagged in recent data breach incident. The cardholder initiated a $287.50 payment at OnlineGadgets.com, a merchant that disclosed a security breach affecting customer payment data 23 days prior. While the transaction amount falls within customer's normal range ($200-$400), the merchant selection combined with breach exposure elevates fraud risk. Account analysis shows this customer last transacted with this merchant 8 months ago, prior to breach notification. Risk assessment factors: 14% of cards used at this merchant post-breach have subsequently reported fraudulent activity. The transaction includes rush shipping to an address that differs from both billing and previous shipping addresses. SHAP scoring emphasizes merchant breach status (0.76), shipping address change (0.73), and rush delivery selection (0.62). Recommended action: approve transaction with enhanced post-transaction monitoring; flag account for 30-day surveillance period.",
+    "why_flagged": [
+      "Merchant involved in data breach disclosed 23 days ago",
+      "Shipping address differs from billing and 5 previous delivery addresses",
+      "Rush delivery selected (not typical for customer - used in 2 of 89 prior orders)",
+      "Post-breach fraud rate for this merchant: 14% of exposed cards",
+      "Transaction timing: 8 months since last purchase from this merchant"
+    ],
+    "metadata": {
+      "risk_score": "0.78",
+      "amount": "$287.50",
+      "merchant_category": "Online Electronics",
+      "time": "4:32 PM EST"
+    },
+    "links": {
+      "output": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs",
+      "shap": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs"
+    }
+  }
+]

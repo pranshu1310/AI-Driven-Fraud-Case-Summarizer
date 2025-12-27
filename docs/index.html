@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Driven Fraud Case Summarizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            margin: -20px -20px 40px -20px;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            opacity: 0.95;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #764ba2;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        ul li {
+            margin-bottom: 8px;
+        }
+
+        .case-explorer-controls {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:hover, select:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .case-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 20px;
+            background: #fafafa;
+        }
+
+        .case-card h3 {
+            color: #667eea;
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+
+        .case-summary {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+
+        .case-narrative {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            line-height: 1.8;
+            border: 1px solid #e0e0e0;
+        }
+
+        .why-flagged {
+            margin-top: 20px;
+        }
+
+        .why-flagged h4 {
+            color: #d9534f;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .why-flagged ul {
+            list-style-type: none;
+            margin-left: 0;
+        }
+
+        .why-flagged li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #fff5f5;
+            border-left: 4px solid #d9534f;
+            border-radius: 4px;
+        }
+
+        .metadata {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .metadata-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metadata-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9em;
+            margin-bottom: 4px;
+        }
+
+        .metadata-value {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #764ba2;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #653a8c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(118, 75, 162, 0.3);
+        }
+
+        .error-message {
+            background: #fff5f5;
+            color: #d9534f;
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid #d9534f;
+            margin: 20px 0;
+        }
+
+        .loading-message {
+            background: #f0f8ff;
+            color: #5568d3;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .code-block {
+            background: #f4f4f4;
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .code-block code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            display: block;
+            white-space: pre;
+            line-height: 1.5;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #888;
+            font-size: 0.9em;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 40px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            header p {
+                font-size: 1em;
+            }
+
+            .metadata {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 AI-Driven Fraud Case Summarizer</h1>
+            <p>From transaction signals to investigation-ready narratives (XGBoost + SHAP + Flan-T5)</p>
+            <div class="nav-links">
+                <a href="https://pranshu-dhingra.github.io" target="_blank">← Portfolio</a>
+                <a href="https://pranshu-dhingra.github.io/projects.html" target="_blank">Projects</a>
+                <a href="https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer" target="_blank">📦 Code</a>
+                <a href="https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs" target="_blank">📊 Outputs</a>
+            </div>
+        </header>
+
+        <section id="how-it-works">
+            <h2>How It Works</h2>
+            <p>This pipeline transforms raw transaction data into investigation-ready fraud case narratives through a multi-stage AI pipeline:</p>
+            <ul>
+                <li><strong>Data Ingestion:</strong> Card transaction data undergoes comprehensive feature engineering, extracting temporal patterns, merchant analytics, and customer behavior profiles.</li>
+                <li><strong>Anomaly Detection:</strong> XGBoost classifier trained on historical fraud patterns identifies suspicious transactions with high precision.</li>
+                <li><strong>Explainability:</strong> SHAP (SHapley Additive exPlanations) generates local and global interpretability, quantifying each feature's contribution to the fraud score.</li>
+                <li><strong>Silver Labeling:</strong> SHAP outputs are converted into structured natural language descriptions that serve as training signals for the language model.</li>
+                <li><strong>Narrative Generation:</strong> Fine-tuned Flan-T5 (Small Language Model) generates human-readable fraud case summaries, complete with risk assessments and investigative recommendations.</li>
+                <li><strong>Output Artifacts:</strong> Generated narratives, SHAP visualizations, and case metadata are saved for fraud analyst review and audit trails.</li>
+            </ul>
+        </section>
+
+        <section id="case-explorer">
+            <h2>Case Explorer</h2>
+            <p>Explore real fraud case narratives generated by the AI pipeline. Each case includes the generated narrative, SHAP-based risk factors, and metadata.</p>
+            
+            <div class="case-explorer-controls">
+                <label for="case-select">Select a fraud case:</label>
+                <select id="case-select">
+                    <option value="">Loading cases...</option>
+                </select>
+            </div>
+
+            <div id="case-display"></div>
+        </section>
+
+        <section id="how-to-reproduce">
+            <h2>How to Reproduce</h2>
+            <p>To run the full pipeline on your own machine:</p>
+            
+            <h3>Prerequisites</h3>
+            <ul>
+                <li>Python 3.8+</li>
+                <li>Required packages: <code>transformers</code>, <code>torch</code>, <code>xgboost</code>, <code>shap</code>, <code>pandas</code>, <code>scikit-learn</code></li>
+            </ul>
+
+            <h3>Quick Start</h3>
+            <div class="code-block">
+                <code># Clone the repository
+git clone https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer.git
+cd AI-Driven-Fraud-Case-Summarizer
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the complete pipeline
+bash run_pipeline.sh</code>
+            </div>
+
+            <h3>Individual Pipeline Steps</h3>
+            <p>You can also run each module independently:</p>
+            <div class="code-block">
+                <code>python -m src.data_preprocessing
+python -m src.feature_engineering
+python -m src.customer_profile_features
+python -m src.velocity_features
+python -m src.anomaly_labeling
+python -m src.xgb_interpret
+python -m src.shap_enrichment
+python -m src.slm_train
+python -m src.inference</code>
+            </div>
+
+            <p>Generated narratives and SHAP visualizations will be saved in the <code>outputs/</code> directory.</p>
+        </section>
+
+        <footer>
+            <p>Static demo hosted on GitHub Pages • <a href="https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer" style="color: #667eea; text-decoration: none;">View Source</a></p>
+        </footer>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        let casesData = [];
+
+        // Load cases data on page load
+        async function loadCases() {
+            try {
+                const response = await fetch('./cases.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load cases data');
+                }
+                casesData = await response.json();
+                populateDropdown();
+                
+                // Load first case by default
+                if (casesData.length > 0) {
+                    displayCase(casesData[0]);
+                }
+            } catch (error) {
+                console.error('Error loading cases:', error);
+                displayError('Failed to load case data. Please ensure cases.json is accessible.');
+            }
+        }
+
+        function populateDropdown() {
+            const select = document.getElementById('case-select');
+            select.innerHTML = '<option value="">-- Select a case --</option>';
+            
+            casesData.forEach((caseItem, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${caseItem.id.toUpperCase()}: ${caseItem.title}`;
+                select.appendChild(option);
+            });
+
+            // Set first case as selected
+            if (casesData.length > 0) {
+                select.value = '0';
+            }
+
+            select.addEventListener('change', (e) => {
+                const index = e.target.value;
+                if (index !== '') {
+                    displayCase(casesData[index]);
+                } else {
+                    document.getElementById('case-display').innerHTML = '';
+                }
+            });
+        }
+
+        function displayCase(caseItem) {
+            const display = document.getElementById('case-display');
+            
+            const html = `
+                <div class="case-card">
+                    <h3>${caseItem.title}</h3>
+                    
+                    <div class="case-summary">
+                        <strong>Summary:</strong> ${caseItem.summary}
+                    </div>
+
+                    <div class="metadata">
+                        <div class="metadata-item">
+                            <span class="metadata-label">Risk Score</span>
+                            <span class="metadata-value">${caseItem.metadata.risk_score}</span>
+                        </div>
+                        <div class="metadata-item">
+                            <span class="metadata-label">Amount</span>
+                            <span class="metadata-value">${caseItem.metadata.amount}</span>
+                        </div>
+                        <div class="metadata-item">
+                            <span class="metadata-label">Category</span>
+                            <span class="metadata-value">${caseItem.metadata.merchant_category}</span>
+                        </div>
+                        <div class="metadata-item">
+                            <span class="metadata-label">Time</span>
+                            <span class="metadata-value">${caseItem.metadata.time}</span>
+                        </div>
+                    </div>
+
+                    <h4>Generated Narrative</h4>
+                    <div class="case-narrative">
+                        ${caseItem.narrative}
+                    </div>
+
+                    <div class="why-flagged">
+                        <h4>🚩 Why This Transaction Was Flagged</h4>
+                        <ul>
+                            ${caseItem.why_flagged.map(reason => `<li>${reason}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn-primary" onclick="copyNarrative('${caseItem.id}')">
+                            📋 Copy Narrative
+                        </button>
+                        <button class="btn-secondary" onclick="openOutputs()">
+                            📁 Open Output Artifacts
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            display.innerHTML = html;
+        }
+
+        function displayError(message) {
+            const display = document.getElementById('case-display');
+            display.innerHTML = `
+                <div class="error-message">
+                    <strong>⚠️ Error:</strong> ${message}
+                </div>
+            `;
+        }
+
+        function copyNarrative(caseId) {
+            const caseItem = casesData.find(c => c.id === caseId);
+            if (!caseItem) return;
+
+            const textToCopy = `${caseItem.title}\n\n${caseItem.narrative}`;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast('✅ Narrative copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                showToast('❌ Failed to copy narrative');
+            });
+        }
+
+        function openOutputs() {
+            window.open('https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs', '_blank');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', loadCases);
+    </script>
+</body>
+</html>
