@@ -1,0 +1,29 @@
+[
+  {
+    "id": "fallback-001",
+    "title": "High Risk Late Night Transaction",
+    "narrative": "Investigation Alert: Transaction of $847.32 initiated at 2:47 AM, significantly deviating from customer's typical business hours pattern (9 AM - 6 PM). Amount exceeds 30-day rolling average by 312%. Merchant category (Electronics) represents only 3% of historical purchases. SHAP analysis identifies transaction time and amount deviation as primary anomaly indicators. Recommend immediate cardholder verification.",
+    "links": {
+      "output": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs",
+      "raw": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs"
+    }
+  },
+  {
+    "id": "fallback-002",
+    "title": "Suspicious Velocity Pattern Multiple Charges",
+    "narrative": "Fraud Alert - High Confidence: Account processed 12 transactions within 4 hours, each ranging from $1.00 to $4.99. Pattern strongly correlates with automated bot behavior attempting to validate stolen card credentials. Velocity metrics show 600% increase over baseline. All transactions target online merchants in different geographic regions. SHAP interpretability scores highlight transaction velocity (0.92) and amount clustering (0.78) as dominant fraud indicators. Immediate action required: suspend card and initiate cardholder contact.",
+    "links": {
+      "output": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs",
+      "raw": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs"
+    }
+  },
+  {
+    "id": "fallback-003",
+    "title": "First International Transaction Anomaly",
+    "narrative": "Alert - Potential Account Compromise: First-time international transaction detected from high-risk region. Cardholder initiated $2,341.67 purchase from Eastern European merchant, representing first international transaction in 24-month monitoring period. Account history shows 100% domestic transactions across 347 prior purchases. SHAP feature analysis prioritizes geographic novelty (0.88), merchant risk score (0.82), and amount percentile (0.71). Recommendation: Place temporary hold, escalate to fraud investigation team.",
+    "links": {
+      "output": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs",
+      "raw": "https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer/tree/main/outputs"
+    }
+  }
+]
