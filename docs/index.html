@@ -371,6 +371,7 @@
             </div>
         </header>
 
+        <main>
         <section id="abstract">
             <h2>Abstract</h2>
             <div class="abstract">
@@ -441,6 +442,8 @@ python -m src.inference</code>
             </ul>
         </section>
 
+        </main>
+
         <footer>
             <p>Static demo hosted on GitHub Pages • <a href="https://github.com/pranshu-dhingra/AI-Driven-Fraud-Case-Summarizer">View Repository</a> • <a href="https://pranshu-dhingra.github.io/">Back to portfolio</a></p>
         </footer>
@@ -449,6 +452,10 @@ python -m src.inference</code>
     <div id="toast" class="toast"></div>
 
     <script>
+        // Configuration constants
+        const MAX_CASE_FILES = 5;
+        const NARRATIVE_COLLAPSE_THRESHOLD = 500;
+        
         let casesData = [];
         let usingFallback = false;
 
@@ -511,8 +518,8 @@ python -m src.inference</code>
 
         async function buildCasesFromFiles(files) {
             const cases = [];
-            // Select up to 5 representative files
-            const selectedFiles = files.slice(0, 5);
+            // Select up to MAX_CASE_FILES representative files
+            const selectedFiles = files.slice(0, MAX_CASE_FILES);
             
             for (const file of selectedFiles) {
                 try {
@@ -633,8 +640,8 @@ python -m src.inference</code>
         function displayCase(caseItem) {
             const display = document.getElementById('case-display');
             
-            // Check if narrative is long (more than 500 chars)
-            const isLong = caseItem.narrative.length > 500;
+            // Check if narrative is long (more than NARRATIVE_COLLAPSE_THRESHOLD chars)
+            const isLong = caseItem.narrative.length > NARRATIVE_COLLAPSE_THRESHOLD;
             const narrativeClass = isLong ? 'case-narrative collapsed' : 'case-narrative';
             const narrativeId = `narrative-${caseItem.id}`;
             
